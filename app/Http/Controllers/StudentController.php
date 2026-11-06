@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Student;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class StudentController extends Controller
 {
@@ -12,7 +13,7 @@ class StudentController extends Controller
     {
         return response()->json([
             'message' => 'Student retrieved successfully',
-            'data' =>Student::all(),
+            'data' => Student::all(),
         ]);
     }
 
@@ -44,17 +45,18 @@ class StudentController extends Controller
     public function update(Request $request, Student $student)
     {
         $data = $request->validate([
-            'student_id' => 'required|string|unique:students,student_id' . $student->id,
+            'student_id' => [
+                'required',
+                'string',
+                Rule::unique('students', 'student_id')->ignore($student->id),
+            ],
             'fullname' => 'required|string',
-            'email' => 'required|email|unique:students,email' . $student->id,
+            'email' => [
+                'required',
+                'email',
+                Rule::unique('students', 'email')->ignore($student->id),
+            ],
             'course' => 'required|string',
-        ]);
-
-        $student->update($data);
-
-        return response()->json([
-            'message' => 'Student updated successfully',
-            'data' => $student,
         ]);
     }
 
